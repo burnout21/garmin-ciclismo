@@ -1187,6 +1187,11 @@ El fichero actividades_ciclismo.csv contiene todas estas columnas para cada acti
 - min_zona_fc_3: Minutos en zona 3 de pulso
 - min_zona_fc_4: Minutos en zona 4 de pulso
 - min_zona_fc_5: Minutos en zona 5 de pulso
+- fc_inicio_zona_1: Pulso a partir del que empieza la zona 1 (ppm)
+- fc_inicio_zona_2: Pulso a partir del que empieza la zona 2 (ppm)
+- fc_inicio_zona_3: Pulso a partir del que empieza la zona 3 (ppm)
+- fc_inicio_zona_4: Pulso a partir del que empieza la zona 4 (ppm)
+- fc_inicio_zona_5: Pulso a partir del que empieza la zona 5 (ppm)
 - potencia_media_w: Potencia media (W)
 - potencia_normalizada_w: Potencia normalizada (W)
 - potencia_max_w: Potencia máxima (W)
