@@ -39,17 +39,91 @@ JSON_FILE = SALIDA_DIR / "actividades_ciclismo.json"
 # Tipos de actividad de Garmin considerados ciclismo
 PALABRAS_CICLISMO = ("cycling", "biking", "virtual_ride", "bmx", "cyclocross", "e_bike")
 
-COLUMNAS = [
-    "id", "fecha", "hora_inicio", "nombre", "tipo", "lugar",
-    "distancia_km", "duracion", "tiempo_movimiento",
-    "velocidad_media_kmh", "velocidad_max_kmh",
-    "desnivel_positivo_m", "desnivel_negativo_m", "altitud_max_m",
-    "fc_media", "fc_max",
-    "potencia_media_w", "potencia_normalizada_w", "potencia_max_w",
-    "cadencia_media_rpm", "calorias",
-    "efecto_aerobico", "efecto_anaerobico", "carga_entrenamiento",
-    "tss", "if", "temperatura_media_c",
+NOMBRES_TIPO = {
+    "mountain_biking": "MTB", "road_biking": "Carretera", "cycling": "Ciclismo",
+    "indoor_cycling": "Rodillo", "virtual_ride": "Rodillo virtual", "gravel_cycling": "Gravel",
+}
+
+# Mejores potencias medias de Garmin: segundos -> etiqueta de la columna
+MEJORES_POTENCIAS = {1: "1s", 2: "2s", 5: "5s", 10: "10s", 20: "20s", 30: "30s", 60: "1min",
+                     120: "2min", 300: "5min", 600: "10min", 1200: "20min", 1800: "30min", 3600: "60min"}
+
+# (columna, campo de Garmin, conversión, descripción)
+# Conversión: decimales, (decimales, factor), "hms" (segundos a h:mm:ss), "min" (segundos a minutos) o "texto".
+# No se incluyen coordenadas GPS ni datos del perfil porque el repositorio es público.
+CAMPOS = [
+    ("distancia_km", "distance", (2, 0.001), "Distancia (km)"),
+    ("duracion", "duration", "hms", "Tiempo registrado"),
+    ("tiempo_movimiento", "movingDuration", "hms", "Tiempo en movimiento"),
+    ("tiempo_transcurrido", "elapsedDuration", "hms", "Tiempo total incluidas las pausas"),
+    ("velocidad_media_kmh", "averageSpeed", (1, 3.6), "Velocidad media (km/h)"),
+    ("velocidad_max_kmh", "maxSpeed", (1, 3.6), "Velocidad máxima (km/h)"),
+    ("mejor_tiempo_40km", "fastestSplit_40000", "hms", "Mejor tiempo en 40 km dentro de la salida"),
+    ("desnivel_positivo_m", "elevationGain", 0, "Desnivel acumulado de subida (m)"),
+    ("desnivel_negativo_m", "elevationLoss", 0, "Desnivel acumulado de bajada (m)"),
+    ("altitud_min_m", "minElevation", 0, "Altitud mínima (m)"),
+    ("altitud_max_m", "maxElevation", 0, "Altitud máxima (m)"),
+    ("altitud_media_m", "avgElevation", 0, "Altitud media (m)"),
+    ("velocidad_vertical_max_ms", "maxVerticalSpeed", 1, "Velocidad vertical máxima (m/s)"),
+    ("vueltas", "lapCount", 0, "Número de vueltas (laps)"),
+
+    ("fc_media", "averageHR", 0, "Frecuencia cardíaca media (ppm)"),
+    ("fc_max", "maxHR", 0, "Frecuencia cardíaca máxima (ppm)"),
+    ("fc_umbral_lactato", "lactateThresholdBpm", 0, "FC de umbral de lactato detectada (ppm)"),
+    *[(f"min_zona_fc_{z}", f"hrTimeInZone_{z}", "min", f"Minutos en zona {z} de pulso") for z in range(1, 6)],
+
+    ("potencia_media_w", "avgPower", 0, "Potencia media (W)"),
+    ("potencia_normalizada_w", "normPower", 0, "Potencia normalizada (W)"),
+    ("potencia_max_w", "maxPower", 0, "Potencia máxima (W)"),
+    ("ftp_w", "maxFtp", 0, "FTP estimado por Garmin en esa fecha (W)"),
+    ("potencia_media_sentado_w", "avgSeatedPower", 0, "Potencia media sentado (W)"),
+    ("potencia_max_sentado_w", "maxSeatedPower", 0, "Potencia máxima sentado (W)"),
+    ("potencia_media_de_pie_w", "avgStandingPower", 0, "Potencia media de pie (W)"),
+    ("potencia_max_de_pie_w", "maxStandingPower", 0, "Potencia máxima de pie (W)"),
+    ("tiempo_sentado", "seatedTime", "hms", "Tiempo pedaleando sentado"),
+    ("tiempo_de_pie", "standingTime", "hms", "Tiempo pedaleando de pie"),
+    ("balance_izquierda_pct", "avgLeftBalance", 0, "Porcentaje de potencia de la pierna izquierda"),
+    *[(f"mejor_potencia_{e}_w", f"maxAvgPower_{s}", 0, f"Mejor potencia media en {e} (W)")
+      for s, e in MEJORES_POTENCIAS.items()],
+    *[(f"min_zona_potencia_{z}", f"powerTimeInZone_{z}", "min", f"Minutos en zona {z} de potencia")
+      for z in range(1, 8)],
+    ("if", "intensityFactor", 2, "Factor de intensidad (NP / FTP)"),
+    ("tss", "trainingStressScore", 0, "Training Stress Score"),
+
+    ("cadencia_media_rpm", "averageBikingCadenceInRevPerMinute", 0, "Cadencia media (rpm)"),
+    ("cadencia_max_rpm", "maxBikingCadenceInRevPerMinute", 0, "Cadencia máxima (rpm)"),
+    ("pedaladas", "strokes", 0, "Pedaladas totales"),
+
+    ("efecto_aerobico", "aerobicTrainingEffect", 1, "Efecto de entrenamiento aeróbico (0-5)"),
+    ("efecto_anaerobico", "anaerobicTrainingEffect", 1, "Efecto de entrenamiento anaeróbico (0-5)"),
+    ("tipo_entrenamiento", "trainingEffectLabel", "texto", "Beneficio principal según Garmin"),
+    ("mensaje_aerobico", "aerobicTrainingEffectMessage", "texto", "Valoración aeróbica de Garmin"),
+    ("mensaje_anaerobico", "anaerobicTrainingEffectMessage", "texto", "Valoración anaeróbica de Garmin"),
+    ("carga_entrenamiento", "activityTrainingLoad", 0, "Carga de entrenamiento de Garmin"),
+    ("vo2max", "vO2MaxValue", 0, "VO2max estimado"),
+    ("min_intensidad_moderada", "moderateIntensityMinutes", 0, "Minutos de intensidad moderada"),
+    ("min_intensidad_vigorosa", "vigorousIntensityMinutes", 0, "Minutos de intensidad vigorosa"),
+
+    ("respiracion_media_rpm", "avgRespirationRate", 0, "Frecuencia respiratoria media (resp/min)"),
+    ("respiracion_min_rpm", "minRespirationRate", 0, "Frecuencia respiratoria mínima (resp/min)"),
+    ("respiracion_max_rpm", "maxRespirationRate", 0, "Frecuencia respiratoria máxima (resp/min)"),
+
+    ("grit", "grit", 1, "MTB: dificultad técnica del recorrido (Grit)"),
+    ("flow", "avgFlow", 1, "MTB: fluidez en el descenso (Flow, menor es mejor)"),
+    ("saltos", "jumpCount", 0, "MTB: número de saltos"),
+
+    ("calorias", "calories", 0, "Calorías gastadas"),
+    ("calorias_basales", "bmrCalories", 0, "Calorías del metabolismo basal durante la salida"),
+    ("calorias_consumidas", "caloriesConsumed", 0, "Calorías ingeridas registradas"),
+    ("agua_estimada_ml", "waterEstimated", 0, "Pérdida de líquido estimada (ml)"),
+    ("agua_consumida_ml", "waterConsumed", 0, "Líquido ingerido registrado (ml)"),
+    ("temperatura_min_c", "minTemperature", 0, "Temperatura mínima (ºC)"),
+    ("temperatura_max_c", "maxTemperature", 0, "Temperatura máxima (ºC)"),
+    ("descripcion", "description", "texto", "Notas escritas en Garmin"),
 ]
+
+COLUMNAS_BASE = ["id", "fecha", "hora_inicio", "nombre", "tipo", "lugar"]
+COLUMNAS = COLUMNAS_BASE + [c[0] for c in CAMPOS]
 
 log = logging.getLogger("garmin_ciclismo")
 
@@ -104,37 +178,45 @@ def redondear(valor, decimales=1, factor=1.0):
     return int(valor) if decimales == 0 else valor
 
 
+def convertir(valor, conversion):
+    if valor is None or valor == "":
+        return ""
+
+    if conversion == "texto":
+        return str(valor).replace("\n", " ").strip()
+
+    if conversion == "hms":
+        return seg_a_hms(valor)
+
+    if conversion == "min":
+        return redondear(valor, 1, 1 / 60)
+
+    if isinstance(conversion, tuple):
+        return redondear(valor, *conversion)
+
+    return redondear(valor, conversion)
+
+
 def resumir(act):
     inicio = act.get("startTimeLocal", "")
-    return {
+    tipo = (act.get("activityType") or {}).get("typeKey", "")
+    lugar = act.get("locationName") or ""
+
+    # Garmin no devuelve nombre en muchas salidas recientes
+    nombre = act.get("activityName") or f"{NOMBRES_TIPO.get(tipo, tipo)} {lugar}".strip()
+
+    resumen = {
         "id": act.get("activityId"),
         "fecha": inicio[:10],
         "hora_inicio": inicio[11:16],
-        "nombre": act.get("activityName", ""),
-        "tipo": (act.get("activityType") or {}).get("typeKey", ""),
-        "lugar": act.get("locationName", "") or "",
-        "distancia_km": redondear(act.get("distance"), 2, 0.001),
-        "duracion": seg_a_hms(act.get("duration")),
-        "tiempo_movimiento": seg_a_hms(act.get("movingDuration")),
-        "velocidad_media_kmh": redondear(act.get("averageSpeed"), 1, 3.6),
-        "velocidad_max_kmh": redondear(act.get("maxSpeed"), 1, 3.6),
-        "desnivel_positivo_m": redondear(act.get("elevationGain"), 0),
-        "desnivel_negativo_m": redondear(act.get("elevationLoss"), 0),
-        "altitud_max_m": redondear(act.get("maxElevation"), 0),
-        "fc_media": redondear(act.get("averageHR"), 0),
-        "fc_max": redondear(act.get("maxHR"), 0),
-        "potencia_media_w": redondear(act.get("avgPower"), 0),
-        "potencia_normalizada_w": redondear(act.get("normPower"), 0),
-        "potencia_max_w": redondear(act.get("maxPower"), 0),
-        "cadencia_media_rpm": redondear(act.get("averageBikingCadenceInRevPerMinute"), 0),
-        "calorias": redondear(act.get("calories"), 0),
-        "efecto_aerobico": redondear(act.get("aerobicTrainingEffect"), 1),
-        "efecto_anaerobico": redondear(act.get("anaerobicTrainingEffect"), 1),
-        "carga_entrenamiento": redondear(act.get("activityTrainingLoad"), 0),
-        "tss": redondear(act.get("trainingStressScore"), 0),
-        "if": redondear(act.get("intensityFactor"), 2),
-        "temperatura_media_c": redondear(act.get("averageTemperature"), 0),
+        "nombre": nombre,
+        "tipo": tipo,
+        "lugar": lugar,
     }
+    for columna, campo, conversion, _ in CAMPOS:
+        resumen[columna] = convertir(act.get(campo), conversion)
+
+    return resumen
 
 
 def cargar_existentes():
@@ -164,8 +246,9 @@ def escribir_salidas(actividades):
     SALIDA_DIR.mkdir(parents=True, exist_ok=True)
     lista = sorted(actividades.values(), key=lambda a: (a["fecha"], a["hora_inicio"]), reverse=True)
 
+    # Una actividad por línea: fichero más ligero y diffs legibles en GitHub
     with open(JSON_FILE, "w", encoding="utf-8") as f:
-        json.dump(lista, f, ensure_ascii=False, indent=1)
+        f.write("[\n" + ",\n".join(json.dumps(a, ensure_ascii=False) for a in lista) + "\n]\n")
 
     # utf-8-sig para que Excel también lo abra bien
     with open(CSV_FILE, "w", encoding="utf-8-sig", newline="") as f:
@@ -177,12 +260,15 @@ def escribir_salidas(actividades):
 
 
 def escribir_markdown(lista):
-    meses = defaultdict(lambda: {"n": 0, "km": 0.0, "desnivel": 0.0, "seg": 0})
+    meses = defaultdict(lambda: {"n": 0, "km": 0.0, "desnivel": 0.0, "seg": 0, "fc": [], "carga": 0.0})
     for a in lista:
         m = meses[a["fecha"][:7]]
         m["n"] += 1
         m["km"] += num(a["distancia_km"])
         m["desnivel"] += num(a["desnivel_positivo_m"])
+        m["carga"] += num(a["carga_entrenamiento"])
+        if a["fc_media"] != "":
+            m["fc"].append(a["fc_media"])
         h, mi, s = (a["tiempo_movimiento"] or a["duracion"] or "0:00:00").split(":")
         m["seg"] += int(h) * 3600 + int(mi) * 60 + int(s)
 
@@ -196,27 +282,53 @@ def escribir_markdown(lista):
         "",
         "## Resumen mensual",
         "",
-        "| Mes | Salidas | Km | Desnivel + (m) | Tiempo en movimiento |",
-        "|---|---|---|---|---|",
+        "| Mes | Salidas | Km | Desnivel + (m) | Tiempo en movimiento | FC media | Carga total |",
+        "|---|---|---|---|---|---|---|",
     ]
     for mes in sorted(meses, reverse=True):
         m = meses[mes]
-        lineas.append(f"| {mes} | {m['n']} | {m['km']:.1f} | {m['desnivel']:.0f} | {seg_a_hms(m['seg'])} |")
+        fc = f"{sum(m['fc']) / len(m['fc']):.0f}" if m["fc"] else ""
+        lineas.append(f"| {mes} | {m['n']} | {m['km']:.1f} | {m['desnivel']:.0f} | {seg_a_hms(m['seg'])} "
+                      f"| {fc} | {m['carga']:.0f} |")
 
-    cols = ["fecha", "nombre", "tipo", "distancia_km", "tiempo_movimiento", "velocidad_media_kmh",
-            "desnivel_positivo_m", "fc_media", "potencia_media_w", "potencia_normalizada_w", "tss"]
+    lineas += tabla_markdown(
+        "Detalle de actividades", lista,
+        ["fecha", "nombre", "tipo", "distancia_km", "tiempo_movimiento", "velocidad_media_kmh",
+         "desnivel_positivo_m", "fc_media", "fc_max", "cadencia_media_rpm", "potencia_media_w",
+         "efecto_aerobico", "tipo_entrenamiento", "carga_entrenamiento"])
+
+    lineas += tabla_markdown(
+        "Salidas con potencia", [a for a in lista if num(a["potencia_media_w"]) > 0],
+        ["fecha", "nombre", "potencia_media_w", "potencia_normalizada_w", "potencia_max_w",
+         "mejor_potencia_5s_w", "mejor_potencia_1min_w", "mejor_potencia_5min_w", "mejor_potencia_20min_w",
+         "ftp_w", "if", "tss", "fc_media"])
+
     lineas += [
         "",
-        "## Detalle de actividades",
+        "## Diccionario de columnas",
+        "",
+        "El fichero actividades_ciclismo.csv contiene todas estas columnas para cada actividad:",
+        "",
+        "- id: identificador de la actividad en Garmin Connect",
+        "- fecha, hora_inicio: inicio de la actividad (hora local)",
+        "- nombre, tipo, lugar: nombre de la salida, tipo de Garmin y localidad de inicio",
+    ]
+    lineas += [f"- {columna}: {descripcion}" for columna, _, _, descripcion in CAMPOS]
+    MD_FILE.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+
+
+def tabla_markdown(titulo, filas, cols):
+    lineas = [
+        "",
+        f"## {titulo}",
         "",
         "| " + " | ".join(cols) + " |",
         "|" + "---|" * len(cols),
     ]
-    for a in lista:
-        lineas.append("| " + " | ".join(str(a[c]).replace("|", "/") for c in cols) + " |")
+    for a in filas:
+        lineas.append("| " + " | ".join(str(a.get(c, "")).replace("|", "/") for c in cols) + " |")
 
-    lineas += ["", "El fichero actividades_ciclismo.csv contiene todas las columnas de cada actividad."]
-    MD_FILE.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    return lineas
 
 
 def importar(api, desde, hasta):
