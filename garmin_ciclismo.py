@@ -20,6 +20,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -71,6 +72,8 @@ CAMPOS = [
     ("fc_max", "maxHR", 0, "Frecuencia cardíaca máxima (ppm)"),
     ("fc_umbral_lactato", "lactateThresholdBpm", 0, "FC de umbral de lactato detectada (ppm)"),
     *[(f"min_zona_fc_{z}", f"hrTimeInZone_{z}", "min", f"Minutos en zona {z} de pulso") for z in range(1, 6)],
+    *[(f"fc_inicio_zona_{z}", f"hrZoneLowBoundary_{z}", 0, f"Pulso a partir del que empieza la zona {z} (ppm)")
+      for z in range(1, 6)],
 
     ("potencia_media_w", "avgPower", 0, "Potencia media (W)"),
     ("potencia_normalizada_w", "normPower", 0, "Potencia normalizada (W)"),
@@ -331,6 +334,34 @@ def tabla_markdown(titulo, filas, cols):
     return lineas
 
 
+def completar_zonas_fc(api, act, anterior):
+    """El listado de Garmin no trae las zonas de pulso de las salidas antiguas ni sus límites:
+    se reutilizan las ya guardadas o se piden a Garmin una a una. Devuelve True si ha consultado a Garmin."""
+    if act.get("averageHR") is None:
+        return False
+
+    if anterior and anterior.get("fc_inicio_zona_2", "") != "":
+        for z in range(1, 6):
+            minutos = anterior[f"min_zona_fc_{z}"]
+            act[f"hrTimeInZone_{z}"] = minutos * 60 if minutos != "" else None
+            act[f"hrZoneLowBoundary_{z}"] = anterior[f"fc_inicio_zona_{z}"] or None
+        return False
+
+    try:
+        zonas = api.get_activity_hr_in_timezones(act["activityId"])
+        time.sleep(0.3)
+    except Exception as e:
+        log.warning("No se pudieron obtener las zonas de pulso de %s: %s", act["activityId"], e)
+        return True
+
+    for zona in zonas or []:
+        z = zona.get("zoneNumber")
+        act[f"hrTimeInZone_{z}"] = zona.get("secsInZone")
+        act[f"hrZoneLowBoundary_{z}"] = zona.get("zoneLowBoundary")
+
+    return True
+
+
 def importar(api, desde, hasta):
     log.info("Buscando actividades entre %s y %s", desde, hasta)
     actividades = api.get_activities_by_date(desde.isoformat(), hasta.isoformat())
@@ -338,7 +369,13 @@ def importar(api, desde, hasta):
 
     existentes = cargar_existentes()
     nuevas = 0
+    consultas = 0
     for act in ciclismo:
+        if completar_zonas_fc(api, act, existentes.get(act.get("activityId"))):
+            consultas += 1
+            if consultas % 50 == 0:
+                log.info("Zonas de pulso consultadas a Garmin: %d", consultas)
+
         resumen = resumir(act)
         if resumen["id"] not in existentes:
             nuevas += 1
