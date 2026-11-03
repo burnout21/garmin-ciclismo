@@ -1,6 +1,6 @@
 # Actividades de ciclismo (Garmin Connect)
 
-Última actividad: 2026-10-22. Total de actividades: 1003.
+Última actividad: 2026-11-02. Total de actividades: 1007.
 
 Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm, potencia en W, cadencia en rpm. Duraciones en h:mm:ss. Campos vacíos = dato no registrado.
 
@@ -8,7 +8,8 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | Mes | Salidas | Km | Desnivel + (m) | Tiempo en movimiento | FC media | Carga total |
 |---|---|---|---|---|---|---|
-| 2026-10 | 10 | 227.9 | 2589 | 13:56:48 | 120 | 1163 |
+| 2026-11 | 1 | 20.0 | 0 | 0:47:59 | 126 | 62 |
+| 2026-10 | 13 | 326.3 | 4120 | 20:43:28 | 124 | 1503 |
 | 2026-09 | 5 | 167.8 | 2493 | 8:04:21 | 138 | 423 |
 | 2026-08 | 10 | 472.6 | 7257 | 24:39:44 | 132 | 2425 |
 | 2026-07 | 11 | 529.4 | 7909 | 26:33:59 | 134 | 2679 |
@@ -148,6 +149,10 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | fecha | nombre | tipo | distancia_km | tiempo_movimiento | velocidad_media_kmh | desnivel_positivo_m | fc_media | fc_max | cadencia_media_rpm | potencia_media_w | efecto_aerobico | tipo_entrenamiento | carga_entrenamiento |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-02 | Rodillo Rentería | indoor_cycling | 20.03 | 0:47:59 | 22.5 |  | 126 | 142 | 71 | 60 | 2.9 | AEROBIC_BASE | 62 |
+| 2026-10-31 | MTB Rentería | mountain_biking | 35.52 | 2:49:50 | 12.5 | 747 | 148 | 177 | 66 |  | 5.0 | VO2MAX | 287 |
+| 2026-10-27 | Rodillo Rentería | indoor_cycling | 21.03 | 0:50:02 | 25.2 |  | 137 | 162 | 77 | 61 | 2.7 | AEROBIC_BASE | 53 |
+| 2026-10-24 | MTB Rentería | mountain_biking | 41.86 | 3:06:48 | 13.4 | 784 |  |  | 63 |  | 0.0 | UNKNOWN | 0 |
 | 2026-10-22 | Ciclismo Rentería | cycling | 31.4 | 1:23:49 | 22.5 | 295 | 133 | 160 | 68 | 55 | 3.0 | AEROBIC_BASE | 70 |
 | 2026-10-20 | Rodillo Rentería | indoor_cycling | 7.15 | 0:45:06 | 9.5 |  | 105 | 123 | 59 | 38 | 1.5 | RECOVERY | 16 |
 | 2026-10-18 | MTB Rentería | mountain_biking | 42.1 | 3:10:52 | 13.2 | 834 | 140 | 198 | 59 |  | 5.0 | LACTATE_THRESHOLD | 251 |
@@ -1156,6 +1161,8 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | fecha | nombre | potencia_media_w | potencia_normalizada_w | potencia_max_w | mejor_potencia_5s_w | mejor_potencia_1min_w | mejor_potencia_5min_w | mejor_potencia_20min_w | ftp_w | if | tss | fc_media |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-02 | Rodillo Rentería | 60 | 65 | 118 | 91 | 84 | 78 | 73 |  | 0.62 | 34 | 126 |
+| 2026-10-27 | Rodillo Rentería | 61 | 65 | 127 | 104 | 92 | 77 | 73 |  | 0.58 | 28 | 137 |
 | 2026-10-22 | Ciclismo Rentería | 55 | 71 | 298 | 255 | 98 | 84 | 74 |  | 0.64 | 57 | 133 |
 | 2026-10-20 | Rodillo Rentería | 38 | 38 | 81 | 64 | 49 | 46 | 41 |  | 0.35 | 9 | 105 |
 | 2026-10-06 | Rodillo Rentería | 61 | 66 | 221 | 214 | 93 | 73 | 70 |  | 0.5 | 25 | 138 |
