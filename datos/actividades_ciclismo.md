@@ -1,6 +1,6 @@
 # Actividades de ciclismo (Garmin Connect)
 
-Última actividad: 2026-11-02. Total de actividades: 1007.
+Última actividad: 2026-11-09. Total de actividades: 1009.
 
 Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm, potencia en W, cadencia en rpm. Duraciones en h:mm:ss. Campos vacíos = dato no registrado.
 
@@ -8,7 +8,7 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | Mes | Salidas | Km | Desnivel + (m) | Tiempo en movimiento | FC media | Carga total |
 |---|---|---|---|---|---|---|
-| 2026-11 | 1 | 20.0 | 0 | 0:47:59 | 126 | 62 |
+| 2026-11 | 3 | 75.9 | 941 | 4:42:03 | 131 | 407 |
 | 2026-10 | 13 | 326.3 | 4120 | 20:43:28 | 124 | 1503 |
 | 2026-09 | 5 | 167.8 | 2493 | 8:04:21 | 138 | 423 |
 | 2026-08 | 10 | 472.6 | 7257 | 24:39:44 | 132 | 2425 |
@@ -149,6 +149,8 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | fecha | nombre | tipo | distancia_km | tiempo_movimiento | velocidad_media_kmh | desnivel_positivo_m | fc_media | fc_max | cadencia_media_rpm | potencia_media_w | efecto_aerobico | tipo_entrenamiento | carga_entrenamiento |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-09 | Rodillo Rentería | indoor_cycling | 20.18 | 0:48:11 | 25.1 |  | 119 | 149 | 62 | 58 | 2.4 | AEROBIC_BASE | 39 |
+| 2026-11-07 | MTB Rentería | mountain_biking | 35.68 | 3:05:53 | 11.5 | 941 | 147 | 178 | 62 |  | 5.0 | VO2MAX | 306 |
 | 2026-11-02 | Rodillo Rentería | indoor_cycling | 20.03 | 0:47:59 | 22.5 |  | 126 | 142 | 71 | 60 | 2.9 | AEROBIC_BASE | 62 |
 | 2026-10-31 | MTB Rentería | mountain_biking | 35.52 | 2:49:50 | 12.5 | 747 | 148 | 177 | 66 |  | 5.0 | VO2MAX | 287 |
 | 2026-10-27 | Rodillo Rentería | indoor_cycling | 21.03 | 0:50:02 | 25.2 |  | 137 | 162 | 77 | 61 | 2.7 | AEROBIC_BASE | 53 |
@@ -1161,6 +1163,7 @@ Unidades: distancia en km, velocidad en km/h, desnivel y altitud en m, FC en ppm
 
 | fecha | nombre | potencia_media_w | potencia_normalizada_w | potencia_max_w | mejor_potencia_5s_w | mejor_potencia_1min_w | mejor_potencia_5min_w | mejor_potencia_20min_w | ftp_w | if | tss | fc_media |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-09 | Rodillo Rentería | 58 | 60 | 107 | 102 | 90 | 71 | 64 |  | 0.57 | 26 | 119 |
 | 2026-11-02 | Rodillo Rentería | 60 | 65 | 118 | 91 | 84 | 78 | 73 |  | 0.62 | 34 | 126 |
 | 2026-10-27 | Rodillo Rentería | 61 | 65 | 127 | 104 | 92 | 77 | 73 |  | 0.58 | 28 | 137 |
 | 2026-10-22 | Ciclismo Rentería | 55 | 71 | 298 | 255 | 98 | 84 | 74 |  | 0.64 | 57 | 133 |
